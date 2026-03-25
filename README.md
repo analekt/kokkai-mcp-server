@@ -11,9 +11,38 @@
 | [国会会議録検索システム](https://kokkai.ndl.go.jp/) | 1947年〜現在 | 国立国会図書館 |
 | [帝国議会会議録検索システム](https://teikokugikai-i.ndl.go.jp/) | 1890年〜1947年 | 国立国会図書館 |
 
-## インストール
+## セットアップ
 
-### Claude Desktop
+### リモートサーバー（推奨）
+
+Node.jsのインストールは不要です。URLを指定するだけで利用できます。
+
+#### Claude Desktop（リモート）
+
+`claude_desktop_config.json` に以下を追加してください。
+
+```json
+{
+  "mcpServers": {
+    "kokkai": {
+      "type": "url",
+      "url": "https://kokkai-mcp.vercel.app/api/mcp"
+    }
+  }
+}
+```
+
+#### Claude Code（リモート）
+
+```bash
+claude mcp add kokkai --transport http https://kokkai-mcp.vercel.app/api/mcp
+```
+
+### ローカル実行
+
+Node.js 18以上が必要です。
+
+#### Claude Desktop（ローカル）
 
 `claude_desktop_config.json` に以下を追加してください。
 
@@ -28,7 +57,7 @@
 }
 ```
 
-### Claude Code
+#### Claude Code（ローカル）
 
 ```bash
 claude mcp add kokkai -- npx -y kokkai-mcp-server
@@ -80,8 +109,8 @@ npm run build
 
 | ツール名 | 説明 |
 |---|---|
-| `get_all_kokkai_meetings` | 国会の会議録を全件取得（2秒間隔、最大5,000件） |
-| `get_all_teikoku_meetings` | 帝国議会の会議録を全件取得（2秒間隔、最大5,000件） |
+| `get_all_kokkai_meetings` | 国会の会議録を全件取得（2秒間隔、最大2,500件） |
+| `get_all_teikoku_meetings` | 帝国議会の会議録を全件取得（2秒間隔、最大2,500件） |
 
 ## 主要パラメータ
 
@@ -141,7 +170,7 @@ search_kokkai_meetings({ nameOfMeeting: "予算委員会", sessionFrom: 210 })
 ## 注意事項
 
 - 本サーバーが利用するAPIは国立国会図書館が提供しています。短時間での大量アクセスはお控えください
-- 全件取得ツールはリクエスト間に2秒の間隔を設けています。最大5,000件（50ページ）で打ち切られます
+- 全件取得ツールはリクエスト間に2秒の間隔を設けています。最大2,500件（25ページ）で打ち切られます
 - 発言の著作権は個々の発言者に帰属します。利用にあたっては[国立国会図書館の利用規約](https://kokkai.ndl.go.jp/)をご確認ください
 - 各ツールのレスポンスは JSON 形式です
 

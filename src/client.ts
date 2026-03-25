@@ -14,7 +14,7 @@ import {
 
 const DELAY_MS = 2000;
 const FETCH_TIMEOUT_MS = 30_000;
-const MAX_PAGES = 50;
+const MAX_PAGES = 25;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
