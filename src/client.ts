@@ -14,9 +14,9 @@ import {
 
 const DELAY_MS = 1000;
 const FETCH_TIMEOUT_MS = 10_000;
-const MAX_PAGES = 25;
+const MAX_PAGES = 10;
 
-function sleep(ms: number): Promise<void> {
+export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
@@ -39,7 +39,15 @@ function buildUrl(
     }
   }
 
-  return `${base}?${searchParams.toString()}`;
+  const queryString = searchParams.toString();
+  const queryByteLength = new TextEncoder().encode(queryString).length;
+  if (queryByteLength > 2000) {
+    throw new Error(
+      `Query string too long (${queryByteLength} bytes, max 2000). Reduce search parameters.`,
+    );
+  }
+
+  return `${base}?${queryString}`;
 }
 
 /**
@@ -142,7 +150,7 @@ export async function countResults(
 /**
  * Fetch all meeting_list results with pagination.
  * Waits DELAY_MS between subsequent requests to respect NDL rate limits.
- * Capped at MAX_PAGES (25 pages = 2,500 records) to prevent unbounded loops.
+ * Capped at MAX_PAGES (10 pages = 1,000 records) to prevent unbounded loops.
  * Returns a `truncated` flag when results exceed the cap.
  */
 export async function getAllMeetings(

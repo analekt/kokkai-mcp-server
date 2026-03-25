@@ -73,8 +73,8 @@ claude mcp add kokkai --transport http https://kokkai-mcp.vercel.app/api/mcp
 
 | ツール名 | 説明 |
 |---|---|
-| `get_all_kokkai_meetings` | 国会の会議録を全件取得（1秒間隔、最大2,500件） |
-| `get_all_teikoku_meetings` | 帝国議会の会議録を全件取得（1秒間隔、最大2,500件） |
+| `get_all_kokkai_meetings` | 国会の会議録を全件取得（1秒間隔、最大1,000件） |
+| `get_all_teikoku_meetings` | 帝国議会の会議録を全件取得（1秒間隔、最大1,000件） |
 
 ## 主要パラメータ
 
@@ -134,7 +134,7 @@ search_kokkai_meetings({ nameOfMeeting: "予算委員会", sessionFrom: 210 })
 ## 注意事項
 
 - 本サーバーが利用するAPIは国立国会図書館が提供しています。短時間での大量アクセスはお控えください
-- 全件取得ツールはリクエスト間に1秒の間隔を設けています。最大2,500件（25ページ）で打ち切られます
+- 全件取得ツールはリクエスト間に1秒の間隔を設けています。最大1,000件（10ページ）で打ち切られます
 - 発言の著作権は個々の発言者に帰属します。利用にあたっては[国立国会図書館の利用規約](https://kokkai.ndl.go.jp/)をご確認ください
 - 各ツールのレスポンスは JSON 形式です
 

@@ -8,6 +8,7 @@ import {
   searchSpeeches,
   countResults,
   getAllMeetings,
+  sleep,
 } from "../client.js";
 import type { EndpointType } from "../types.js";
 import {
@@ -35,10 +36,9 @@ export function registerAdvancedTools(server: McpServer): void {
     "国会と帝国議会の両方から会議録を横断検索します。戦前から現在までの会議を一度に調べたいときに使います。国会固有のパラメータ（closing, speakerRole）や帝国議会固有のパラメータ（speakerElection）は使用できません。",
     crossSearchMeetingListSchema.shape,
     handleToolCall(async (params) => {
-      const [kokkai, teikoku] = await Promise.all([
-        searchMeetings("kokkai", params).catch((e: Error) => ({ error: e.message, system: "kokkai" as const })),
-        searchMeetings("teikoku", params).catch((e: Error) => ({ error: e.message, system: "teikoku" as const })),
-      ]);
+      const kokkai = await searchMeetings("kokkai", params).catch((e: Error) => ({ error: e.message, system: "kokkai" as const }));
+      await sleep(1000);
+      const teikoku = await searchMeetings("teikoku", params).catch((e: Error) => ({ error: e.message, system: "teikoku" as const }));
       return {
         kokkai,
         teikoku,
@@ -52,10 +52,9 @@ export function registerAdvancedTools(server: McpServer): void {
     "国会と帝国議会の両方から発言を横断検索します。戦前から現在までの発言を一度に調べたいときに使います。国会固有のパラメータ（closing, speakerRole）や帝国議会固有のパラメータ（speakerElection）は使用できません。",
     crossSearchSpeechSchema.shape,
     handleToolCall(async (params) => {
-      const [kokkai, teikoku] = await Promise.all([
-        searchSpeeches("kokkai", params).catch((e: Error) => ({ error: e.message, system: "kokkai" as const })),
-        searchSpeeches("teikoku", params).catch((e: Error) => ({ error: e.message, system: "teikoku" as const })),
-      ]);
+      const kokkai = await searchSpeeches("kokkai", params).catch((e: Error) => ({ error: e.message, system: "kokkai" as const }));
+      await sleep(1000);
+      const teikoku = await searchSpeeches("teikoku", params).catch((e: Error) => ({ error: e.message, system: "teikoku" as const }));
       return {
         kokkai,
         teikoku,
@@ -94,18 +93,17 @@ export function registerAdvancedTools(server: McpServer): void {
       const { target, ...searchParams } = params;
       const endpoint = targetToEndpoint(target);
 
-      const [kokkai, teikoku] = await Promise.all([
-        countResults("kokkai", endpoint, searchParams).catch((e: Error) => ({
-          system: "kokkai" as const,
-          endpoint,
-          error: e.message,
-        })),
-        countResults("teikoku", endpoint, searchParams).catch((e: Error) => ({
-          system: "teikoku" as const,
-          endpoint,
-          error: e.message,
-        })),
-      ]);
+      const kokkai = await countResults("kokkai", endpoint, searchParams).catch((e: Error) => ({
+        system: "kokkai" as const,
+        endpoint,
+        error: e.message,
+      }));
+      await sleep(1000);
+      const teikoku = await countResults("teikoku", endpoint, searchParams).catch((e: Error) => ({
+        system: "teikoku" as const,
+        endpoint,
+        error: e.message,
+      }));
 
       const kokkaiCount = "numberOfRecords" in kokkai ? kokkai.numberOfRecords : 0;
       const teikokuCount = "numberOfRecords" in teikoku ? teikoku.numberOfRecords : 0;
@@ -124,14 +122,14 @@ export function registerAdvancedTools(server: McpServer): void {
 
   server.tool(
     "get_all_kokkai_meetings",
-    "国会の会議録を全件取得します。1秒間隔でページネーションを行い、最大2,500件まで取得します。件数が多い場合は時間がかかります。",
+    "国会の会議録を全件取得します。1秒間隔でページネーションを行い、最大1,000件まで取得します。件数が多い場合は時間がかかります。",
     getAllMeetingsSchema.shape,
     handleToolCall((params) => getAllMeetings("kokkai", params)),
   );
 
   server.tool(
     "get_all_teikoku_meetings",
-    "帝国議会の会議録を全件取得します。1秒間隔でページネーションを行い、最大2,500件まで取得します。件数が多い場合は時間がかかります。",
+    "帝国議会の会議録を全件取得します。1秒間隔でページネーションを行い、最大1,000件まで取得します。件数が多い場合は時間がかかります。",
     getAllTeikokuMeetingsSchema.shape,
     handleToolCall((params) => getAllMeetings("teikoku", params)),
   );
