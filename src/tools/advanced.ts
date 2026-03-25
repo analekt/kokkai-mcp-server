@@ -23,6 +23,10 @@ function targetToEndpoint(target: string): EndpointType {
   return target === "meetings" ? "meeting_list" : "speech";
 }
 
+function hasError(result: unknown): boolean {
+  return typeof result === "object" && result !== null && "error" in result;
+}
+
 export function registerAdvancedTools(server: McpServer): void {
   // ---- 横断検索 ----
 
@@ -35,7 +39,11 @@ export function registerAdvancedTools(server: McpServer): void {
         searchMeetings("kokkai", params).catch((e: Error) => ({ error: e.message, system: "kokkai" as const })),
         searchMeetings("teikoku", params).catch((e: Error) => ({ error: e.message, system: "teikoku" as const })),
       ]);
-      return { kokkai, teikoku };
+      return {
+        kokkai,
+        teikoku,
+        hasErrors: hasError(kokkai) || hasError(teikoku),
+      };
     }),
   );
 
@@ -48,7 +56,11 @@ export function registerAdvancedTools(server: McpServer): void {
         searchSpeeches("kokkai", params).catch((e: Error) => ({ error: e.message, system: "kokkai" as const })),
         searchSpeeches("teikoku", params).catch((e: Error) => ({ error: e.message, system: "teikoku" as const })),
       ]);
-      return { kokkai, teikoku };
+      return {
+        kokkai,
+        teikoku,
+        hasErrors: hasError(kokkai) || hasError(teikoku),
+      };
     }),
   );
 
@@ -97,8 +109,14 @@ export function registerAdvancedTools(server: McpServer): void {
 
       const kokkaiCount = "numberOfRecords" in kokkai ? kokkai.numberOfRecords : 0;
       const teikokuCount = "numberOfRecords" in teikoku ? teikoku.numberOfRecords : 0;
+      const errors = hasError(kokkai) || hasError(teikoku);
 
-      return { kokkai, teikoku, total: kokkaiCount + teikokuCount };
+      return {
+        kokkai,
+        teikoku,
+        total: errors ? null : kokkaiCount + teikokuCount,
+        hasErrors: errors,
+      };
     }),
   );
 
@@ -106,14 +124,14 @@ export function registerAdvancedTools(server: McpServer): void {
 
   server.tool(
     "get_all_kokkai_meetings",
-    "国会の会議録を全件取得します。2秒間隔でページネーションを行い、最大5,000件まで取得します。件数が多い場合は時間がかかります。",
+    "国会の会議録を全件取得します。1秒間隔でページネーションを行い、最大2,500件まで取得します。件数が多い場合は時間がかかります。",
     getAllMeetingsSchema.shape,
     handleToolCall((params) => getAllMeetings("kokkai", params)),
   );
 
   server.tool(
     "get_all_teikoku_meetings",
-    "帝国議会の会議録を全件取得します。2秒間隔でページネーションを行い、最大5,000件まで取得します。件数が多い場合は時間がかかります。",
+    "帝国議会の会議録を全件取得します。1秒間隔でページネーションを行い、最大2,500件まで取得します。件数が多い場合は時間がかかります。",
     getAllTeikokuMeetingsSchema.shape,
     handleToolCall((params) => getAllMeetings("teikoku", params)),
   );

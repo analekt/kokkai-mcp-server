@@ -9,16 +9,35 @@
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { createServer } from "../src/server.js";
 
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS?.split(",") ?? [];
+
+function getCorsHeaders(request: Request): Record<string, string> {
+  const origin = request.headers.get("origin") ?? "";
+
+  // If ALLOWED_ORIGINS is configured, restrict to those origins.
+  // If not configured (empty), allow all origins for public access.
+  const allowOrigin =
+    ALLOWED_ORIGINS.length === 0 || ALLOWED_ORIGINS.includes(origin)
+      ? origin || "*"
+      : "";
+
+  if (!allowOrigin) {
+    return {};
+  }
+
+  return {
+    "Access-Control-Allow-Origin": allowOrigin,
+    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, mcp-session-id, mcp-protocol-version",
+    ...(allowOrigin !== "*" ? { Vary: "Origin" } : {}),
+  };
+}
+
 async function handler(request: Request): Promise<Response> {
-  // CORS headers for cross-origin MCP clients
+  const corsHeaders = getCorsHeaders(request);
+
   if (request.method === "OPTIONS") {
-    return new Response(null, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, mcp-session-id, mcp-protocol-version",
-      },
-    });
+    return new Response(null, { headers: corsHeaders });
   }
 
   const server = createServer();
@@ -31,9 +50,10 @@ async function handler(request: Request): Promise<Response> {
 
   const response = await transport.handleRequest(request);
 
-  // Add CORS headers to the response
   const headers = new Headers(response.headers);
-  headers.set("Access-Control-Allow-Origin", "*");
+  for (const [key, value] of Object.entries(corsHeaders)) {
+    headers.set(key, value);
+  }
 
   return new Response(response.body, {
     status: response.status,
@@ -45,4 +65,3 @@ async function handler(request: Request): Promise<Response> {
 export const GET = handler;
 export const POST = handler;
 export const DELETE = handler;
-export const OPTIONS = handler;

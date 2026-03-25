@@ -12,8 +12,8 @@ import {
   type ErrorResponse,
 } from "./types.js";
 
-const DELAY_MS = 2000;
-const FETCH_TIMEOUT_MS = 30_000;
+const DELAY_MS = 1000;
+const FETCH_TIMEOUT_MS = 10_000;
 const MAX_PAGES = 25;
 
 function sleep(ms: number): Promise<void> {
@@ -43,6 +43,24 @@ function buildUrl(
 }
 
 /**
+ * Determine if a parsed JSON response is an NDL API error envelope.
+ * Error responses contain `message` and optionally `details`,
+ * but never contain `meetingRecord`, `speechRecord`, or `numberOfRecords`.
+ */
+function isErrorResponse(data: unknown): data is ErrorResponse {
+  if (typeof data !== "object" || data === null) {
+    return false;
+  }
+  const obj = data as Record<string, unknown>;
+  return (
+    typeof obj.message === "string" &&
+    obj.meetingRecord === undefined &&
+    obj.speechRecord === undefined &&
+    obj.numberOfRecords === undefined
+  );
+}
+
+/**
  * Fetch JSON from the API with timeout.
  * Returns parsed response or throws on HTTP/network/API error.
  */
@@ -57,13 +75,11 @@ async function fetchJson<T>(url: string): Promise<T> {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const data: unknown = await response.json();
 
-    // Check for API-level errors: error responses have `message` but no `numberOfRecords`
-    if (data.message !== undefined && data.numberOfRecords === undefined) {
-      const error = data as ErrorResponse;
-      const details = error.details ? `\n${error.details.join("\n")}` : "";
-      throw new Error(`API Error: ${error.message}${details}`);
+    if (isErrorResponse(data)) {
+      const details = data.details ? `\n${data.details.join("\n")}` : "";
+      throw new Error(`API Error: ${data.message}${details}`);
     }
 
     return data as T;
@@ -124,8 +140,9 @@ export async function countResults(
 }
 
 /**
- * Fetch all meeting_list results with pagination, waiting DELAY_MS between requests.
- * Capped at MAX_PAGES (50 pages = 5,000 records) to prevent unbounded loops.
+ * Fetch all meeting_list results with pagination.
+ * Waits DELAY_MS between subsequent requests to respect NDL rate limits.
+ * Capped at MAX_PAGES (25 pages = 2,500 records) to prevent unbounded loops.
  * Returns a `truncated` flag when results exceed the cap.
  */
 export async function getAllMeetings(
