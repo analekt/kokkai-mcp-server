@@ -1,0 +1,39 @@
+{
+  "name": "kokkai-mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server for searching Japanese National Diet and Imperial Diet meeting records",
+  "type": "module",
+  "bin": {
+    "kokkai-mcp-server": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "kokkai",
+    "national-diet",
+    "imperial-diet",
+    "japan",
+    "parliament"
+  ],
+  "author": "RYO KIKUCHI",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/analekt/kokkai-mcp-server.git"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^6.0.2"
+  }
+}
