@@ -3,17 +3,8 @@
   "version": "0.1.0",
   "description": "MCP server for searching Japanese National Diet and Imperial Diet meeting records",
   "type": "module",
-  "bin": {
-    "kokkai-mcp-server": "./dist/index.js"
-  },
-  "files": [
-    "dist"
-  ],
   "scripts": {
-    "build": "tsc",
-    "check": "tsc --noEmit -p tsconfig.vercel.json",
-    "dev": "tsc --watch",
-    "start": "node dist/index.js"
+    "check": "tsc --noEmit"
   },
   "keywords": [
     "mcp",
@@ -31,6 +22,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",
+    "mcpcat": "^0.1.13",
     "zod": "^4.3.6"
   },
   "devDependencies": {
