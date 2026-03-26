@@ -34,13 +34,14 @@ function getCorsHeaders(request: Request): Record<string, string> {
 }
 
 async function handler(request: Request): Promise<Response> {
+  const start = Date.now();
   const corsHeaders = getCorsHeaders(request);
 
   if (request.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const server = await createServer();
+  const server = createServer();
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined, // stateless
     enableJsonResponse: true,
@@ -54,6 +55,12 @@ async function handler(request: Request): Promise<Response> {
   for (const [key, value] of Object.entries(corsHeaders)) {
     headers.set(key, value);
   }
+
+  console.log(JSON.stringify({
+    method: request.method,
+    status: response.status,
+    durationMs: Date.now() - start,
+  }));
 
   return new Response(response.body, {
     status: response.status,
