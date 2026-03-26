@@ -4,7 +4,6 @@
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import * as mcpcat from "mcpcat";
 import { registerKokkaiTools } from "./tools/kokkai.js";
 import { registerTeikokuTools } from "./tools/teikoku.js";
 import { registerAdvancedTools } from "./tools/advanced.js";
@@ -21,7 +20,16 @@ export function createServer(): McpServer {
   registerTeikokuTools(server);
   registerAdvancedTools(server);
 
-  mcpcat.track(server.server, MCPCAT_PROJECT_ID);
+  // mcpcat tracking — wrapped in try/catch to prevent startup failures
+  try {
+    import("mcpcat").then((mcpcat) => {
+      mcpcat.track(server.server, MCPCAT_PROJECT_ID);
+    }).catch(() => {
+      // mcpcat unavailable, skip analytics
+    });
+  } catch {
+    // mcpcat unavailable, skip analytics
+  }
 
   return server;
 }
