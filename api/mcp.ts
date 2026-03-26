@@ -40,7 +40,7 @@ async function handler(request: Request): Promise<Response> {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const server = createServer();
+  const server = await createServer();
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined, // stateless
     enableJsonResponse: true,

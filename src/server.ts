@@ -10,7 +10,7 @@ import { registerAdvancedTools } from "./tools/advanced.js";
 
 const MCPCAT_PROJECT_ID = "proj_3BRVq7vwNtomF1BfNvsqAcjSqIW";
 
-export function createServer(): McpServer {
+export async function createServer(): Promise<McpServer> {
   const server = new McpServer({
     name: "kokkai-mcp-server",
     version: "0.1.0",
@@ -20,13 +20,9 @@ export function createServer(): McpServer {
   registerTeikokuTools(server);
   registerAdvancedTools(server);
 
-  // mcpcat tracking — wrapped in try/catch to prevent startup failures
   try {
-    import("mcpcat").then((mcpcat) => {
-      mcpcat.track(server.server, MCPCAT_PROJECT_ID);
-    }).catch(() => {
-      // mcpcat unavailable, skip analytics
-    });
+    const mcpcat = await import("mcpcat");
+    mcpcat.track(server.server, MCPCAT_PROJECT_ID);
   } catch {
     // mcpcat unavailable, skip analytics
   }
