@@ -37,7 +37,7 @@
   <tr><td><a href="https://teikokugikai-i.ndl.go.jp/">帝国議会会議録検索システム</a></td><td>1890年〜1947年</td></tr>
 </table>
 
-<h2>セットアップ</h2>
+<h2>⚙️ セットアップ</h2>
 <p>Node.jsのインストールは不要です。URLを指定するだけで利用できます。ClaudeがこのMCPサーバを使おうとしない場合は、「国会MCPを使って調べて」と命じてください。</p>
 
 <h3 style="font-size:1rem; margin-top:1.2rem;">🌐 ブラウザ版Claude</h3>
@@ -57,7 +57,7 @@
 <h3 style="font-size:1rem; margin-top:1.2rem;">⌨️ Claude Code</h3>
 <pre><code>claude mcp add kokkai --transport http https://kokkai.vercel.app/mcp</code></pre>
 
-<h2>利用できるツール</h2>
+<h2>🛠 利用できるツール</h2>
 
 <table>
   <tr><th>ツール</th><th>説明</th></tr>
@@ -76,7 +76,7 @@
   <tr><td><code>get_all_teikoku_meetings</code></td><td>帝国議会の会議録を全件取得（最大1,000件）</td></tr>
 </table>
 
-<h2>使用例</h2>
+<h2>📍 使用例</h2>
 <ul>
   <li>「人工知能」に関する国会での発言件数を調べる → <code>count_kokkai</code></li>
   <li>戦前から現在まで「教育」に関する議論を横断検索 → <code>search_all_speeches</code></li>
@@ -84,7 +84,7 @@
   <li>予算委員会の会議録一覧を取得 → <code>search_kokkai_meetings</code></li>
 </ul>
 
-<h2>注意事項</h2>
+<h2>⚠️ 注意事項</h2>
 <ul>
   <li>本サーバーが利用するAPIは<a href="https://kokkai.ndl.go.jp/">国立国会図書館</a>が提供しています。短時間での大量アクセスはお控えください</li>
   <li>全件取得ツールはリクエスト間に1秒の間隔を設けており、最大1,000件（10ページ）で打ち切られます</li>
@@ -92,7 +92,7 @@
   <li>各ツールのレスポンスはJSON形式です</li>
 </ul>
 
-<h2>リンク</h2>
+<h2>🔗 リンク</h2>
 <ul>
   <li><a href="https://github.com/analekt/kokkai-mcp-server">GitHub</a></li>
   <li><a href="https://kokkai.ndl.go.jp/api.html">国会会議録検索システム API仕様</a></li>
