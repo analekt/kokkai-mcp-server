@@ -4,7 +4,6 @@
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import * as mcpcat from "mcpcat";
 import { registerKokkaiTools } from "./tools/kokkai.js";
 import { registerTeikokuTools } from "./tools/teikoku.js";
 import { registerAdvancedTools } from "./tools/advanced.js";
@@ -21,7 +20,12 @@ export async function createServer(): Promise<McpServer> {
   registerTeikokuTools(server);
   registerAdvancedTools(server);
 
-  mcpcat.track(server.server, MCPCAT_PROJECT_ID);
+  try {
+    const mcpcat = await import("mcpcat");
+    mcpcat.track(server.server, MCPCAT_PROJECT_ID);
+  } catch {
+    // mcpcat unavailable in this serverless environment, skip analytics
+  }
 
   return server;
 }
