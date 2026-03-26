@@ -41,6 +41,16 @@ async function handler(request: Request): Promise<Response> {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Stateless server: SSE streaming via GET is not supported.
+  // Without this guard the transport opens a long-lived SSE stream
+  // that hits Vercel's 60-second function timeout.
+  if (request.method === "GET") {
+    return new Response(null, {
+      status: 405,
+      headers: { ...corsHeaders, Allow: "POST, OPTIONS" },
+    });
+  }
+
   const server = createServer();
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined, // stateless
