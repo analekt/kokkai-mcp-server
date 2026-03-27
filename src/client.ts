@@ -34,7 +34,10 @@ function buildUrl(
   searchParams.set("recordPacking", "json");
 
   for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== "") {
+    // Omit undefined, empty strings, and explicit `false` — NDL APIs default
+    // boolean flags (closing, supplementAndAppendix, etc.) to false, so
+    // sending "false" is redundant and potentially misinterpreted.
+    if (value !== undefined && value !== "" && value !== false) {
       searchParams.set(key, String(value));
     }
   }
@@ -201,6 +204,10 @@ export async function getAllMeetings(
     numberOfRecords: totalRecords,
     numberOfReturn: allRecords.length,
     startRecord: 1,
+    // nextRecordPosition is intentionally absent: this function always returns
+    // a complete (or truncated-at-cap) result set. Use the `truncated` flag
+    // to detect the cap case.
+    nextRecordPosition: undefined,
     meetingRecord: allRecords,
     truncated,
   };

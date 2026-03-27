@@ -105,20 +105,28 @@ export function registerAdvancedTools(server: McpServer): void {
         error: e.message,
       }));
 
-      const kokkaiCount = "numberOfRecords" in kokkai ? kokkai.numberOfRecords : 0;
-      const teikokuCount = "numberOfRecords" in teikoku ? teikoku.numberOfRecords : 0;
-      const errors = hasError(kokkai) || hasError(teikoku);
+      const kokkaiCount = "numberOfRecords" in kokkai ? kokkai.numberOfRecords : null;
+      const teikokuCount = "numberOfRecords" in teikoku ? teikoku.numberOfRecords : null;
+      const hasErrors = hasError(kokkai) || hasError(teikoku);
 
+      // `total` is the verified sum of both systems; null when either failed.
+      // `partialTotal` provides the available count when one system errored.
+      const availableCount = (kokkaiCount ?? 0) + (teikokuCount ?? 0);
       return {
         kokkai,
         teikoku,
-        total: errors ? null : kokkaiCount + teikokuCount,
-        hasErrors: errors,
+        total: !hasErrors ? availableCount : null,
+        partialTotal: hasErrors && (kokkaiCount !== null || teikokuCount !== null)
+          ? availableCount
+          : null,
+        hasErrors,
       };
     }),
   );
 
   // ---- 全件取得 ----
+  // Uses meeting_list endpoint which returns meeting metadata only (no speech
+  // body text), so response size is bounded even at 1,000 records.
 
   server.tool(
     "get_all_kokkai_meetings",
