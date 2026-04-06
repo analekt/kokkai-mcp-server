@@ -4,6 +4,7 @@
   "description": "MCP server for searching Japanese National Diet and Imperial Diet meeting records",
   "type": "module",
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
     "check": "tsc --noEmit"
   },
   "keywords": [

@@ -1,0 +1,11 @@
+{
+  "actorSpecification": 1,
+  "name": "kokkai-mcp-server",
+  "title": "Kokkai MCP Server",
+  "version": "0.1",
+  "usesStandbyMode": true,
+  "webServerMcpPath": "/mcp",
+  "dockerfile": "../Dockerfile",
+  "readme": "../README.md",
+  "defaultMemoryMbytes": 256
+}
