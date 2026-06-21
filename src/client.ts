@@ -12,9 +12,9 @@ import {
   type ErrorResponse,
 } from "./types.js";
 
-const DELAY_MS = 1000;
+/** Spacing between sequential NDL requests, per the API's "数秒空けて" guidance. */
+export const DELAY_MS = 2000;
 const FETCH_TIMEOUT_MS = 10_000;
-const MAX_PAGES = 10;
 
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -153,19 +153,17 @@ export async function countResults(
 /**
  * Fetch all meeting_list results with pagination.
  * Waits DELAY_MS between subsequent requests to respect NDL rate limits.
- * Capped at MAX_PAGES (10 pages = 1,000 records) to prevent unbounded loops.
- * Returns a `truncated` flag when results exceed the cap.
+ * Loops until the API reports no further pages; there is no record cap.
  */
 export async function getAllMeetings(
   system: ApiSystem,
   params: Record<string, string | number | boolean | undefined>,
-): Promise<MeetingResponse & { truncated: boolean }> {
+): Promise<MeetingResponse> {
   const allRecords: MeetingResponse["meetingRecord"][number][] = [];
   let startRecord = 1;
   let totalRecords = 0;
   const pageSize = 100;
   let pageCount = 0;
-  let truncated = false;
 
   while (true) {
     const pageParams = {
@@ -192,11 +190,6 @@ export async function getAllMeetings(
       break;
     }
 
-    if (pageCount >= MAX_PAGES) {
-      truncated = true;
-      break;
-    }
-
     startRecord = page.nextRecordPosition;
   }
 
@@ -205,10 +198,8 @@ export async function getAllMeetings(
     numberOfReturn: allRecords.length,
     startRecord: 1,
     // nextRecordPosition is intentionally absent: this function always returns
-    // a complete (or truncated-at-cap) result set. Use the `truncated` flag
-    // to detect the cap case.
+    // the complete result set.
     nextRecordPosition: undefined,
     meetingRecord: allRecords,
-    truncated,
   };
 }

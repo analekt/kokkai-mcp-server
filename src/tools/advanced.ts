@@ -9,6 +9,7 @@ import {
   countResults,
   getAllMeetings,
   sleep,
+  DELAY_MS,
 } from "../client.js";
 import type { EndpointType } from "../types.js";
 import {
@@ -37,7 +38,7 @@ export function registerAdvancedTools(server: McpServer): void {
     crossSearchMeetingListSchema.shape,
     handleToolCall("search_all_meetings", async (params) => {
       const kokkai = await searchMeetings("kokkai", params).catch((e: Error) => ({ error: e.message, system: "kokkai" as const }));
-      await sleep(1000);
+      await sleep(DELAY_MS);
       const teikoku = await searchMeetings("teikoku", params).catch((e: Error) => ({ error: e.message, system: "teikoku" as const }));
       return {
         kokkai,
@@ -53,7 +54,7 @@ export function registerAdvancedTools(server: McpServer): void {
     crossSearchSpeechSchema.shape,
     handleToolCall("search_all_speeches", async (params) => {
       const kokkai = await searchSpeeches("kokkai", params).catch((e: Error) => ({ error: e.message, system: "kokkai" as const }));
-      await sleep(1000);
+      await sleep(DELAY_MS);
       const teikoku = await searchSpeeches("teikoku", params).catch((e: Error) => ({ error: e.message, system: "teikoku" as const }));
       return {
         kokkai,
@@ -98,7 +99,7 @@ export function registerAdvancedTools(server: McpServer): void {
         endpoint,
         error: e.message,
       }));
-      await sleep(1000);
+      await sleep(DELAY_MS);
       const teikoku = await countResults("teikoku", endpoint, searchParams).catch((e: Error) => ({
         system: "teikoku" as const,
         endpoint,
@@ -126,18 +127,18 @@ export function registerAdvancedTools(server: McpServer): void {
 
   // ---- 全件取得 ----
   // Uses meeting_list endpoint which returns meeting metadata only (no speech
-  // body text), so response size is bounded even at 1,000 records.
+  // body text), keeping per-record response size small even for large result sets.
 
   server.tool(
     "get_all_kokkai_meetings",
-    "国会の会議録を全件取得します。1秒間隔でページネーションを行い、最大1,000件まで取得します。件数が多い場合は時間がかかります。",
+    "国会の会議録を全件取得します。2秒間隔でページネーションを行い、ヒットした全件を取得します。件数が多い場合は時間がかかります。",
     getAllMeetingsSchema.shape,
     handleToolCall("get_all_kokkai_meetings", (params) => getAllMeetings("kokkai", params)),
   );
 
   server.tool(
     "get_all_teikoku_meetings",
-    "帝国議会の会議録を全件取得します。1秒間隔でページネーションを行い、最大1,000件まで取得します。件数が多い場合は時間がかかります。",
+    "帝国議会の会議録を全件取得します。2秒間隔でページネーションを行い、ヒットした全件を取得します。件数が多い場合は時間がかかります。",
     getAllTeikokuMeetingsSchema.shape,
     handleToolCall("get_all_teikoku_meetings", (params) => getAllMeetings("teikoku", params)),
   );
