@@ -41,7 +41,7 @@
 <p>Node.jsのインストールは不要です。URLを指定するだけで利用できます。</p>
 
 <h3 style="font-size:1rem; margin-top:1.2rem;">🌐 ブラウザ版Claude</h3>
-<p>画面下の⚙️設定画面から［コネクタ］を選択。一番下の［カスタムコネクタを追加］をクリック。［リモートMCPサーバURL］という入力欄があるので、「http://kokkai-mcp.vercel.app/mcp」と入力。［名前］は「国会MCP」にしておいて下さい。モバイルアプリやデスクトップアプリでも使えるようになります。</p>
+<p>画面下の⚙️設定画面から［コネクタ］を選択。一番下の［カスタムコネクタを追加］をクリック。［リモートMCPサーバURL］という入力欄があるので、「https://kokkai.vercel.app/mcp」と入力。［名前］は「国会MCP」にしておいて下さい。モバイルアプリやデスクトップアプリでも使えるようになります。</p>
 
 <h3 style="font-size:1rem; margin-top:1.2rem;">🖥 Claude Desktop</h3>
 <p><code>claude_desktop_config.json</code>に以下を追加してください。</p>
@@ -72,8 +72,8 @@
   <tr><td><code>count_kokkai</code></td><td>国会の検索結果件数を取得</td></tr>
   <tr><td><code>count_teikoku</code></td><td>帝国議会の検索結果件数を取得</td></tr>
   <tr><td><code>count_all</code></td><td>国会＋帝国議会の合計件数を取得</td></tr>
-  <tr><td><code>get_all_kokkai_meetings</code></td><td>国会の会議録を全件取得（最大1,000件）</td></tr>
-  <tr><td><code>get_all_teikoku_meetings</code></td><td>帝国議会の会議録を全件取得（最大1,000件）</td></tr>
+  <tr><td><code>get_all_kokkai_meetings</code></td><td>国会の会議録をヒット全件取得</td></tr>
+  <tr><td><code>get_all_teikoku_meetings</code></td><td>帝国議会の会議録をヒット全件取得</td></tr>
 </table>
 
 <h2>📍 使用例</h2>
@@ -87,7 +87,7 @@
 <h2>⚠️ 注意事項</h2>
 <ul>
   <li>本サーバーが利用するAPIは<a href="https://kokkai.ndl.go.jp/">国立国会図書館</a>が提供しています。短時間での大量アクセスはお控えください</li>
-  <li>全件取得ツールはリクエスト間に1秒の間隔を設けており、最大1,000件（10ページ）で打ち切られます</li>
+  <li>全件取得ツール・横断ツールはリクエスト間に2秒の間隔を設けています。全件取得はヒットした件数をすべて取得するため、件数が多い場合は時間がかかります</li>
   <li>発言の著作権は個々の発言者に帰属します</li>
   <li>各ツールのレスポンスはJSON形式です</li>
 </ul>
