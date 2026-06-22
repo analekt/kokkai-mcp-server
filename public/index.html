@@ -64,9 +64,11 @@
   <tr><td><code>search_kokkai_meetings</code></td><td>国会の会議録を検索（本文なし、最大100件）</td></tr>
   <tr><td><code>get_kokkai_meeting</code></td><td>国会の会議録を取得（全発言の本文付き、最大10件）</td></tr>
   <tr><td><code>search_kokkai_speeches</code></td><td>国会の発言を検索（本文付き、最大100件）</td></tr>
+  <tr><td><code>get_kokkai_speech</code></td><td>国会の発言を speechID で1件取得（本文付き）</td></tr>
   <tr><td><code>search_teikoku_meetings</code></td><td>帝国議会の会議録を検索（本文なし、最大100件）</td></tr>
   <tr><td><code>get_teikoku_meeting</code></td><td>帝国議会の会議録を取得（全発言の本文付き、最大10件）</td></tr>
   <tr><td><code>search_teikoku_speeches</code></td><td>帝国議会の発言を検索（本文付き、最大100件）</td></tr>
+  <tr><td><code>get_teikoku_speech</code></td><td>帝国議会の発言を speechID で1件取得（本文付き）</td></tr>
   <tr><td><code>search_all_meetings</code></td><td>国会と帝国議会を横断して会議録を検索</td></tr>
   <tr><td><code>search_all_speeches</code></td><td>国会と帝国議会を横断して発言を検索</td></tr>
   <tr><td><code>count_kokkai</code></td><td>国会の検索結果件数を取得</td></tr>
@@ -76,11 +78,21 @@
   <tr><td><code>get_all_teikoku_meetings</code></td><td>帝国議会の会議録をヒット全件取得</td></tr>
 </table>
 
+<h2>🧭 推奨の調べ方</h2>
+<p>発言本文はデータ量が大きいため、いきなり大量取得するとAIのコンテキストを圧迫します。次の段階的な手順を推奨します（この案内はサーバーからAIにも自動で伝わります）。</p>
+<ol>
+  <li>まず <code>count_*</code> で件数を把握する</li>
+  <li>件数が多ければ <code>search_*_meetings</code>（本文なし）で会議を絞り込む</li>
+  <li>必要な会議だけ <code>get_*_meeting</code> で全発言本文を取得する</li>
+  <li>特定の発言だけ読みたいときは、<code>search_*_speeches</code> で見つけた <code>speechID</code> を <code>get_*_speech</code> に渡す</li>
+</ol>
+
 <h2>📍 使用例</h2>
 <ul>
   <li>「人工知能」に関する国会での発言件数を調べる → <code>count_kokkai</code></li>
   <li>戦前から現在まで「教育」に関する議論を横断検索 → <code>search_all_speeches</code></li>
   <li>特定の議員の発言を検索 → <code>search_kokkai_speeches</code></li>
+  <li>検索でヒットした特定の発言の全文を取得 → <code>get_kokkai_speech</code>（<code>speechID</code> を指定）</li>
   <li>予算委員会の会議録一覧を取得 → <code>search_kokkai_meetings</code></li>
 </ul>
 

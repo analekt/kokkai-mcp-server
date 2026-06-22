@@ -45,6 +45,7 @@ claude mcp add kokkai --transport http https://kokkai.vercel.app/mcp
 | `search_kokkai_meetings` | 会議録を検索（本文なし、最大100件） |
 | `get_kokkai_meeting` | 会議録を取得（全発言の本文付き、最大10件） |
 | `search_kokkai_speeches` | 発言を検索（本文付き、最大100件） |
+| `get_kokkai_speech` | 発言を speechID で1件取得（本文付き） |
 
 ### 帝国議会（1890年〜1947年）
 
@@ -53,6 +54,7 @@ claude mcp add kokkai --transport http https://kokkai.vercel.app/mcp
 | `search_teikoku_meetings` | 会議録を検索（本文なし、最大100件） |
 | `get_teikoku_meeting` | 会議録を取得（全発言の本文付き、最大10件） |
 | `search_teikoku_speeches` | 発言を検索（本文付き、最大100件） |
+| `get_teikoku_speech` | 発言を speechID で1件取得（本文付き） |
 
 ### 横断検索
 
@@ -75,6 +77,17 @@ claude mcp add kokkai --transport http https://kokkai.vercel.app/mcp
 |---|---|
 | `get_all_kokkai_meetings` | 国会の会議録をヒット全件取得（2秒間隔でページネーション） |
 | `get_all_teikoku_meetings` | 帝国議会の会議録をヒット全件取得（2秒間隔でページネーション） |
+
+## 推奨ワークフロー
+
+発言本文は1件あたりのデータ量が大きく、大量に取得するとAIのコンテキストを圧迫します。次の段階的な手順を推奨します（この内容はサーバーの `instructions` としてもAIに伝えられます）。
+
+1. まず `count_kokkai` / `count_teikoku` / `count_all` で件数を把握する
+2. 件数が多い場合は `search_*_meetings`（本文なしのメタデータ）で会議を絞り込む
+3. 必要な会議のみ `get_*_meeting` で全発言本文を取得する
+4. 特定の発言だけ読みたい場合は、`search_*_speeches` で見つけた `speechID` を `get_*_speech` に渡してピンポイントで取得する
+
+戦前から現在までを横断的に調べたいときは `search_all_meetings` / `search_all_speeches` / `count_all` を使います。
 
 ## 主要パラメータ
 
@@ -159,6 +172,12 @@ search_kokkai_speeches({ speaker: "岸田文雄", from: "2021-10-01" })
 
 ```
 search_kokkai_meetings({ nameOfMeeting: "予算委員会", sessionFrom: 210 })
+```
+
+### 検索でヒットした特定の発言の全文を取得する
+
+```
+get_kokkai_speech({ speechID: "122105367X00720260514_006" })
 ```
 
 ## 注意事項

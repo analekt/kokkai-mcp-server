@@ -211,3 +211,13 @@ export const getAllTeikokuMeetingsSchema = z.object({
   ...commonSearchFields,
   ...teikokuExtra,
 });
+
+// ---- 発言単体取得 schemas ----
+// speechID 完全一致で1発言を取得する。両システムで speech エンドポイントを
+// 共有するため、スキーマも共通（speechID のみ必須）。
+
+export const getSpeechSchema = z.object({
+  speechID: z
+    .string()
+    .describe("発言ID（完全一致）。search_*_speeches の結果に含まれる speechID を指定する"),
+});
