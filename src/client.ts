@@ -16,6 +16,36 @@ import {
 export const DELAY_MS = 2000;
 const FETCH_TIMEOUT_MS = 10_000;
 
+// ── NDL レスポンスキャッシュ ────────────────────────────────────────────────
+// Map の挿入順序を LRU として利用する（先頭エントリが最古）。
+// エラーレスポンスはキャッシュしない。
+
+const CACHE_TTL_MS   = Number(process.env.CACHE_TTL_MS   ?? 60 * 60 * 1000); // 1時間
+const CACHE_MAX_SIZE = Number(process.env.CACHE_MAX_SIZE ?? 200);
+
+interface CacheEntry { value: unknown; expiresAt: number }
+const ndlCache = new Map<string, CacheEntry>();
+
+function cacheGet(key: string): unknown | undefined {
+  const entry = ndlCache.get(key);
+  if (!entry) return undefined;
+  if (Date.now() > entry.expiresAt) { ndlCache.delete(key); return undefined; }
+  // アクセスされたエントリを末尾へ移動（LRU 更新）
+  ndlCache.delete(key);
+  ndlCache.set(key, entry);
+  return entry.value;
+}
+
+function cacheSet(key: string, value: unknown): void {
+  if (ndlCache.has(key)) {
+    ndlCache.delete(key);
+  } else if (ndlCache.size >= CACHE_MAX_SIZE) {
+    ndlCache.delete(ndlCache.keys().next().value!);
+  }
+  ndlCache.set(key, { value, expiresAt: Date.now() + CACHE_TTL_MS });
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -76,6 +106,9 @@ function isErrorResponse(data: unknown): data is ErrorResponse {
  * Returns parsed response or throws on HTTP/network/API error.
  */
 async function fetchJson<T>(url: string): Promise<T> {
+  const cached = cacheGet(url);
+  if (cached !== undefined) return cached as T;
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
@@ -93,6 +126,7 @@ async function fetchJson<T>(url: string): Promise<T> {
       throw new Error(`API Error: ${data.message}${details}`);
     }
 
+    cacheSet(url, data);
     return data as T;
   } finally {
     clearTimeout(timeoutId);
